@@ -4,7 +4,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import datetime as dt
 import pandas_datareader as web
-from forex_python.converter import CurrencyRates
 import sys
 
 class MainWin(QMainWindow):
