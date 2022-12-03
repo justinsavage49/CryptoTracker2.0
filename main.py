@@ -6,7 +6,7 @@ import datetime as dt
 import pandas_datareader as web
 import sys
 
-class MainWin(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setGeometry(200, 200, 400, 285)
@@ -24,9 +24,10 @@ class MainWin(QMainWindow):
         ['DOGE', 'Dogecoin'], ['LTC', 'Litecoin'], ['ADA', 'Cardano'], ['XMR', 'Monero'],
         ['SOL', 'Solana'], ['TRX', 'TRON'], ['DOT', 'Polkadot']
         ]
-        self.currencyList = ['USD', 'EUR', 'GBP', 'JPY', 'MXN']
+        self.currencyList = ['USD', 'EUR', 'GBP', 'CAD', 'AUD']
         self.currentTrackers = []
         self.currency = 'USD'
+        self.currencyCheck = []
 
         self.mainMenu = self.menuBar()
         self.mainMenu.setStyleSheet('''
@@ -43,12 +44,15 @@ class MainWin(QMainWindow):
             currencyAction = QAction(self.currencyList[i], self)
             currencyAction.setCheckable(True)
             self.currencyMenu.addAction(currencyAction)
-            currencyAction.triggered.connect(lambda action, i=i: self.OnClickCurrency(self.currencyList[i]))            
+            if i == 0:
+                self.currencyCheck.append(currencyAction)
+                currencyAction.setChecked(True)
+            currencyAction.triggered.connect(lambda action, i=i, currencyAction=currencyAction: self.OnClickCurrency(self.currencyList[i], currencyAction))            
         
         self.addTrackerMenu = self.mainMenu.addMenu('&[Add Tracker]')
         
         #ADD CRYPTO LIST
-        for i in range(len(self.cryptoList)):
+        for i in range(len(self.cryptoList)):            
             cryptoAction = QAction(self.cryptoList[i][0], self)
             self.addTrackerMenu.addAction(cryptoAction)
             cryptoAction.triggered.connect(lambda action, i=i: self.OnClickCrypto(self.cryptoList[i][0], self.cryptoList[i][1]))
@@ -68,9 +72,15 @@ class MainWin(QMainWindow):
         background-color: rgba(255, 0, 0, 0.3);
         }''')
     
-    def OnClickCurrency(self, currency):
-        global selectedCurrency
-        selectedCurrency = currency
+    def OnClickCurrency(self, currency, currencyAction):
+        self.currencyCheck.append(currencyAction)
+        if self.currencyCheck[0] == self.currencyCheck[1]:
+            self.currencyCheck.pop(0)
+            self.currencyCheck[0].setChecked(True)
+        else:
+            self.currencyCheck[1].setChecked(True)
+            self.currencyCheck[0].setChecked(False)
+            self.currencyCheck.pop(0)
         self.currency = currency
     
     def OnClickCrypto(self, crypto, full):    
@@ -102,7 +112,7 @@ class MainWin(QMainWindow):
         ''')
 
         #CRYPTO PRICE
-        self.MarketInfo(crypto)
+        self.MarketInfo(crypto, self.currency)
         priceLabel = QLabel(self.marketPrice, trackerSlot)
         priceLabel.setGeometry(148, 19, 200, 50)
         priceLabel.setAlignment(Qt.AlignRight)
@@ -155,31 +165,44 @@ class MainWin(QMainWindow):
         font-size: 20px;
         font-style: bold;
         ''')
-        trackerSlot.show()
-        self.currentTrackers.append(trackerSlot)
+
+        self.currentTrackers.append([crypto, self.currency, deltaLabel1, priceLabel, trackerSlot])
         self.yPos += 65
-    
+        trackerSlot.show()
+
     def OnClickDelete(self):
         if len(self.currentTrackers) > 0:
-            self.currentTrackers[-1].deleteLater()
-            self.currentTrackers[-1] = None
+            self.currentTrackers[-1][-1].deleteLater()
+            self.currentTrackers[-1][-1] = None
             self.currentTrackers.pop(-1)
             self.yPos -= 65
 
-    def MarketInfo(self, crypto):
+    def MarketInfo(self, crypto, currency=None):
         t1 = dt.datetime.utcnow() - dt.timedelta(hours=24)
         start = t1.date()
-        marketInfo = web.DataReader(crypto + '-USD', 'yahoo', start=start)
+        marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start)
         marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
         priceDelta = (marketNow / marketOpen - 1) * 100
-        self.marketPrice = str(format(round(marketNow, 2), '.2f'))
+        self.marketPrice = round(marketNow, 2)
+        self.marketPrice = '{:,.2f}'.format(self.marketPrice)
         self.priceDelta = round(priceDelta, 2)
+        self.strPriceDelta = str(format(round(priceDelta, 2), '.2f'))
+
+    def UpdateTrackers(self):
+        if len(self.currentTrackers) > 0:
+            for i in range(len(self.currentTrackers)):
+                self.MarketInfo(self.currentTrackers[i][0], self.currentTrackers[i][1])
+                self.currentTrackers[i][2].setText(self.strPriceDelta + '%')
+                self.currentTrackers[i][3].setText(self.marketPrice)
 
 def main():
     app = QApplication(sys.argv)
-    win = MainWin()
+    win = MainWindow()
     win.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-
+    updateTimer = QtCore.QTimer()
+    updateTimer.timeout.connect(win.UpdateTrackers)
+    updateTimer.setInterval(60000)
+    updateTimer.start()
     win.show()
     sys.exit(app.exec_())
    
