@@ -1,7 +1,6 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *    
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QPushButton, QLabel
+from PyQt5 import QtCore
+from PyQt5.QtCore import Qt      
 import datetime as dt
 import pandas_datareader as web
 import sys
