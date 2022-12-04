@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QPushButton, QLabel
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMenu, QMenuBar, QAction, QPushButton, QLabel
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt      
 import datetime as dt
@@ -9,6 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setGeometry(200, 200, 400, 285)
+        self.setFixedSize(400, 285)
         self.setWindowTitle('Crypto Tracker')
         self.setStyleSheet('''
         background-color: #222223;
@@ -33,11 +34,11 @@ class MainWindow(QMainWindow):
         background-color: white;
         border: 0px, solid, white;
         ''')
-        self.fileMenu = self.mainMenu.addMenu('&File')
-        self.editMenu = self.mainMenu.addMenu('&Edit')
-        self.helpMenu = self.mainMenu.addMenu('&Help') 
+        self.fileMenu = self.mainMenu.addAction('File')
+        self.mainMenu.addSeparator()
+        self.themeMenu = self.mainMenu.addMenu('&Themes') 
         self.currencyMenu = self.mainMenu.addMenu('&Currency')
-        
+
         #CURRENCY SELECTOR MENU
         for i in range(len(self.currencyList)):
             currencyAction = QAction(self.currencyList[i], self)
@@ -57,7 +58,7 @@ class MainWindow(QMainWindow):
             cryptoAction.triggered.connect(lambda action, i=i: self.OnClickCrypto(self.cryptoList[i][0], self.cryptoList[i][1]))
 
         #DELETE TRACKER BUTTON
-        self.deleteBtn = QPushButton('&[Delete Tracker]', self.mainMenu)
+        self.deleteBtn = QPushButton('[&Delete Tracker]', self.mainMenu)
         self.deleteBtn.move(285, 0)
         self.deleteBtn.clicked.connect(self.OnClickDelete)
         self.deleteBtn.setStyleSheet('''
@@ -166,15 +167,23 @@ class MainWindow(QMainWindow):
         ''')
 
         self.currentTrackers.append([crypto, self.currency, deltaLabel1, priceLabel, trackerSlot])
+        if len(self.currentTrackers) > 4:
+            winY = (len(self.currentTrackers) - 4) * 65
+            self.curY = 285 + winY
+            self.setFixedHeight(self.curY)
         self.yPos += 65
         trackerSlot.show()
 
     def OnClickDelete(self):
+        if len(self.currentTrackers) > 4:
+                self.curY = self.curY - 65
+                self.setFixedHeight(self.curY)
         if len(self.currentTrackers) > 0:
             self.currentTrackers[-1][-1].deleteLater()
             self.currentTrackers[-1][-1] = None
             self.currentTrackers.pop(-1)
             self.yPos -= 65
+            
 
     def MarketInfo(self, crypto, currency=None):
         t1 = dt.datetime.utcnow() - dt.timedelta(hours=24)
