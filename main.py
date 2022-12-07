@@ -31,13 +31,8 @@ class MainWindow(QMainWindow):
         self.dark = True
 
         self.mainMenu = self.menuBar()
-        self.mainMenu.setStyleSheet('''
-        background-color: white;
-        border: 3px, ridge, grey;
-
-        ''')
+        
         self.fileMenu = self.mainMenu.addAction('File')
-        self.mainMenu.addSeparator()
 
         #Themes Menu
         self.themeMenu = self.mainMenu.addMenu('&Themes')
@@ -52,7 +47,7 @@ class MainWindow(QMainWindow):
         self.themeMenu.addAction(self.themeLightAction)
         self.themeLightAction.triggered.connect(self.LightMode)
 
-
+        self.DarkMode()
         #CURRENCY SELECTOR MENU
         self.currencyMenu = self.mainMenu.addMenu('&Currency')
 
@@ -185,7 +180,6 @@ class MainWindow(QMainWindow):
             self.currentTrackers.pop(-1)
             self.yPos -= 65
             
-
     def MarketInfo(self, crypto, currency=None):
         t1 = dt.datetime.utcnow() - dt.timedelta(hours=24)
         start = t1.date()
@@ -205,7 +199,6 @@ class MainWindow(QMainWindow):
                 self.currentTrackers[i][2].setText(self.strPriceDelta + '%')
                 self.currentTrackers[i][3].setText(self.marketPrice)
     
-
     def ThemeToggle(self):
         if self.dark:
             self.themeDarkAction.setChecked(True)
@@ -217,14 +210,15 @@ class MainWindow(QMainWindow):
     def DarkMode(self):
         self.dark = True
         self.ThemeToggle()
+
         self.setStyleSheet('''
         background-color: #222223;
         border: 3px ridge grey;
         font-size: 14px;
         ''')
         self.mainMenu.setStyleSheet('''
-        background-color: white;
-        border: 3px, ridge, grey;
+        background-color: orange;
+        border: 3px ridge grey;
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
@@ -260,14 +254,15 @@ class MainWindow(QMainWindow):
     def LightMode(self):
         self.dark = False
         self.ThemeToggle()
+
         self.setStyleSheet('''
         background-color: grey;
         border: 3px ridge cornflowerblue;
         font-size: 14px;
         ''')
         self.mainMenu.setStyleSheet('''
-        background-color: white;
-        border: 3px, ridge, grey;
+        background-color: cornflowerblue;
+        border: 3px ridge grey;
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
