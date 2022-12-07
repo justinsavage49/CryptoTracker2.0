@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMenu, QMenuBar, QAction, QPushButton, QLabel
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QMenuBar, QAction, QPushButton, QLabel
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt      
+from PyQt5.QtCore import Qt, QPoint     
 import datetime as dt
 import pandas_datareader as web
 import sys
@@ -8,6 +8,7 @@ import sys
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setGeometry(200, 200, 400, 285)
         self.setFixedSize(400, 285)
         self.setWindowTitle('Crypto Tracker')
@@ -70,18 +71,34 @@ class MainWindow(QMainWindow):
 
         #DELETE TRACKER BUTTON
         self.deleteBtn = QPushButton('[&Delete Tracker]', self.mainMenu)
-        self.deleteBtn.move(285, 0)
+        self.deleteBtn.move(272, 4)
         self.deleteBtn.clicked.connect(self.OnClickDelete)
         self.deleteBtn.setStyleSheet('''
         QPushButton {
+        border: 0px ridge grey;
         text-align: center;
-        height: 25px;
-        width: 110px;
+        height: 23px;
+        width: 100px;
         font-size: 14px;
         color: red;}
         QPushButton:hover {
-        background-color: rgba(255, 0, 0, 0.3);
+        background-color: rgba(255, 255, 255, 1);
         }''')
+
+        #CLOSE APPLICATION
+        self.closeBtn = QPushButton('&X', self.mainMenu)
+        self.closeBtn.move(378, 7)
+        self.closeBtn.setStyleSheet('''
+        QPushButton {
+        background-color: red;
+        width: 18px;
+        height: 18px;
+        border: 0px ridge grey;
+        color: white;}
+        QPushButton:hover {
+        background-color: rgba(255, 0, 0, 0.5);
+        }''')
+        self.closeBtn.clicked.connect(self.close)
     
     def OnClickCurrency(self, currency, currencyAction):
         self.currencyCheck.append(currencyAction)
@@ -217,8 +234,9 @@ class MainWindow(QMainWindow):
         font-size: 14px;
         ''')
         self.mainMenu.setStyleSheet('''
-        background-color: orange;
+        background-color: slategrey;
         border: 3px ridge grey;
+        color: black;
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
@@ -296,10 +314,19 @@ class MainWindow(QMainWindow):
                 font-style: bold;
                 ''')
 
+def mousePressEvent(self, event):
+    self.oldPos = event.globalPos()
+
+def mouseMoveEvent(self, event):
+    delta = QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
+
 def main():
     app = QApplication(sys.argv)
     win = MainWindow()
     win.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+    
     updateTimer = QtCore.QTimer()
     updateTimer.timeout.connect(win.UpdateTrackers)
     updateTimer.setInterval(60000)
