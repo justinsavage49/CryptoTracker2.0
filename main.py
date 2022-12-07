@@ -28,18 +28,34 @@ class MainWindow(QMainWindow):
         self.currentTrackers = []
         self.currency = 'USD'
         self.currencyCheck = []
+        self.dark = True
 
         self.mainMenu = self.menuBar()
         self.mainMenu.setStyleSheet('''
         background-color: white;
-        border: 0px, solid, white;
+        border: 3px, ridge, grey;
+
         ''')
         self.fileMenu = self.mainMenu.addAction('File')
         self.mainMenu.addSeparator()
-        self.themeMenu = self.mainMenu.addMenu('&Themes') 
-        self.currencyMenu = self.mainMenu.addMenu('&Currency')
+
+        #Themes Menu
+        self.themeMenu = self.mainMenu.addMenu('&Themes')
+
+        self.themeDarkAction = QAction("&Dark Mode", self)
+        self.themeDarkAction.setCheckable(True)
+        self.themeMenu.addAction(self.themeDarkAction)
+        self.themeDarkAction.triggered.connect(self.DarkMode)
+
+        self.themeLightAction = QAction("&Light Mode", self)
+        self.themeLightAction.setCheckable(True)
+        self.themeMenu.addAction(self.themeLightAction)
+        self.themeLightAction.triggered.connect(self.LightMode)
+
 
         #CURRENCY SELECTOR MENU
+        self.currencyMenu = self.mainMenu.addMenu('&Currency')
+
         for i in range(len(self.currencyList)):
             currencyAction = QAction(self.currencyList[i], self)
             currencyAction.setCheckable(True)
@@ -87,29 +103,14 @@ class MainWindow(QMainWindow):
         trackerSlot = QLabel(self)
         trackerSlot.setGeometry(0, self.yPos, 400, 65)
         trackerSlot.setAlignment(Qt.AlignLeft)
-        trackerSlot.setStyleSheet('''
-        background: rgba(0,0,0,0);
-        font-size: 30px;
-        text-align: center;
-        color: orange;
-        border: 0px solid white;
-        border-bottom: 3px ridge grey; 
-        ''')
 
         #MAIN TRACKER TITLE 'BTC'
         cryptoAbbrev = QLabel(crypto, trackerSlot)
         cryptoAbbrev.setGeometry(8,-6,200,50)
-        cryptoAbbrev.setStyleSheet('''
-        border: 0px, solid, white;
-        ''')
 
         #FULL CRYPTO NAME
         cryptoFull = QLabel(full, trackerSlot)
         cryptoFull.setGeometry(10, 22, 200, 50)
-        cryptoFull.setStyleSheet('''
-        border: 0px, solid, white;
-        font-size: 16px;
-        ''')
 
         #CRYPTO PRICE
         self.MarketInfo(crypto, self.currency)
@@ -118,12 +119,14 @@ class MainWindow(QMainWindow):
         priceLabel.setAlignment(Qt.AlignRight)
         if self.priceDelta > 0:
             priceLabel.setStyleSheet('''
+            background-color: rgba(0,0,0,0);
             border: 0px, solid, white;
             color: rgba(39, 222, 11, 1);
             font-size: 36px;
             ''')
         else:
             priceLabel.setStyleSheet('''
+            background-color: rgba(0,0,0,0);
             border: 0px, solid, white;
             color: red;
             font-size: 36px;
@@ -133,16 +136,12 @@ class MainWindow(QMainWindow):
         priceDelta = str(format(round(self.priceDelta, 2), '.2f'))
         deltaLabel = QLabel('Open Δ', trackerSlot)
         deltaLabel.setGeometry(102, -15, 75, 75)
-        deltaLabel.setStyleSheet('''
-        border: 0px, solid, white;
-        color: white;
-        font-size: 20px;
-        font-style: bold;
-        ''')
+
         deltaLabel1 = QLabel(priceDelta + '%', trackerSlot)
         deltaLabel1.setGeometry(102, 12, 75, 70)
         if self.priceDelta > 0:
             deltaLabel1.setStyleSheet('''
+            background-color: rgba(0,0,0,0);
             border: 0px, solid, white;
             color: rgba(39, 222, 11, 1);
             font-size: 20px;
@@ -150,6 +149,7 @@ class MainWindow(QMainWindow):
             ''')
         else:
             deltaLabel1.setStyleSheet('''
+            background-color: rgba(0,0,0,0);
             border: 0px, solid, white;
             color: red;
             font-size: 20px;
@@ -159,14 +159,15 @@ class MainWindow(QMainWindow):
         #CURRENCY
         currencyLabel = QLabel(self.currency, trackerSlot)
         currencyLabel.setGeometry(354, 22, 200, 50)
-        currencyLabel.setStyleSheet('''
-        border: 0px, solid, white;
-        color: lightgrey;
-        font-size: 20px;
-        font-style: bold;
-        ''')
 
-        self.currentTrackers.append([crypto, self.currency, deltaLabel1, priceLabel, trackerSlot])
+        self.currentTrackers.append([crypto, self.currency, deltaLabel1,
+        priceLabel, trackerSlot, cryptoFull, cryptoAbbrev, deltaLabel, currencyLabel])
+
+        if self.dark:
+            self.DarkMode() 
+        else:
+            self.LightMode()
+
         if len(self.currentTrackers) > 4:
             winY = (len(self.currentTrackers) - 4) * 65
             self.curY = 285 + winY
@@ -179,8 +180,8 @@ class MainWindow(QMainWindow):
                 self.curY = self.curY - 65
                 self.setFixedHeight(self.curY)
         if len(self.currentTrackers) > 0:
-            self.currentTrackers[-1][-1].deleteLater()
-            self.currentTrackers[-1][-1] = None
+            self.currentTrackers[-1][4].deleteLater()
+            self.currentTrackers[-1][4] = None
             self.currentTrackers.pop(-1)
             self.yPos -= 65
             
@@ -188,7 +189,8 @@ class MainWindow(QMainWindow):
     def MarketInfo(self, crypto, currency=None):
         t1 = dt.datetime.utcnow() - dt.timedelta(hours=24)
         start = t1.date()
-        marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start)
+        end = dt.datetime.utcnow()
+        marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start, end=end)
         marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
         priceDelta = (marketNow / marketOpen - 1) * 100
         self.marketPrice = round(marketNow, 2)
@@ -202,6 +204,102 @@ class MainWindow(QMainWindow):
                 self.MarketInfo(self.currentTrackers[i][0], self.currentTrackers[i][1])
                 self.currentTrackers[i][2].setText(self.strPriceDelta + '%')
                 self.currentTrackers[i][3].setText(self.marketPrice)
+    
+
+    def ThemeToggle(self):
+        if self.dark:
+            self.themeDarkAction.setChecked(True)
+            self.themeLightAction.setChecked(False)
+        else:
+            self.themeDarkAction.setChecked(False)
+            self.themeLightAction.setChecked(True)
+
+    def DarkMode(self):
+        self.dark = True
+        self.ThemeToggle()
+        self.setStyleSheet('''
+        background-color: #222223;
+        border: 3px ridge grey;
+        font-size: 14px;
+        ''')
+        self.mainMenu.setStyleSheet('''
+        background-color: white;
+        border: 3px, ridge, grey;
+        ''')
+        if len(self.currentTrackers) > 0:
+            for i in range(len(self.currentTrackers)):
+                self.currentTrackers[i][4].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                color: orange;
+                border: 0px, solid, white;
+                border: 3px ridge grey;''') 
+                self.currentTrackers[i][5].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                border: 0px, solid, white;
+                font-size: 16px;
+                ''')
+                self.currentTrackers[i][6].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                font-size: 30px;
+                border: 0px, solid, white;
+                ''')
+                self.currentTrackers[i][7].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                border: 0px, solid, white;
+                color: white;
+                font-size: 20px;
+                ''')
+                self.currentTrackers[i][8].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                border: 0px, solid, white;
+                color: white;
+                font-size: 20px;
+                font-style: bold;
+                ''')
+
+    def LightMode(self):
+        self.dark = False
+        self.ThemeToggle()
+        self.setStyleSheet('''
+        background-color: grey;
+        border: 3px ridge cornflowerblue;
+        font-size: 14px;
+        ''')
+        self.mainMenu.setStyleSheet('''
+        background-color: white;
+        border: 3px, ridge, grey;
+        ''')
+        if len(self.currentTrackers) > 0:
+            for i in range(len(self.currentTrackers)):
+                self.currentTrackers[i][4].setStyleSheet('''
+                background-color: aliceblue;
+                border: 0px, solid, white;
+                border: 3px ridge cornflowerblue;''') 
+                self.currentTrackers[i][5].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                color: #222223;
+                border: 0px, solid, white;
+                font-size: 16px;
+                ''')
+                self.currentTrackers[i][6].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                color: #222223;
+                border: 0px, solid, white;
+                font-size: 30px;
+                ''')
+                self.currentTrackers[i][7].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                border: 0px, solid, white;
+                color: black;
+                font-size: 20px;
+                ''')
+                self.currentTrackers[i][8].setStyleSheet('''
+                background-color: rgba(0,0,0,0);
+                border: 0px, solid, white;
+                color: black;
+                font-size: 20px;
+                font-style: bold;
+                ''')
 
 def main():
     app = QApplication(sys.argv)
