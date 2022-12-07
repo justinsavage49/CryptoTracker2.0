@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
                 self.currentTrackers[i][8].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
                 border: 0px, solid, white;
-                color: white;
+                color: lightgrey;
                 font-size: 20px;
                 font-style: bold;
                 ''')
