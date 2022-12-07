@@ -1,4 +1,8 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QMenuBar, QAction, QPushButton, QLabel
+from PyQt5.QtWidgets import (QMessageBox,QApplication, QWidget, QToolTip, QPushButton,
+                             QDesktopWidget, QMainWindow, QAction, qApp, QToolBar, QVBoxLayout,
+                             QComboBox,QLabel,QLineEdit,QGridLayout,QMenuBar,QMenu,QStatusBar,
+                             QTextEdit,QDialog,QFrame,QProgressBar)
+                             
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QPoint     
 import datetime as dt
@@ -8,7 +12,6 @@ import sys
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setGeometry(200, 200, 400, 285)
         self.setFixedSize(400, 285)
         self.setWindowTitle('Crypto Tracker')
@@ -18,6 +21,7 @@ class MainWindow(QMainWindow):
         font-size: 14px;
         ''')
         self.yPos = 25
+        self.oldPos = self.pos()
 
         #INIT DATA
         self.cryptoList = [
@@ -75,6 +79,7 @@ class MainWindow(QMainWindow):
         self.deleteBtn.clicked.connect(self.OnClickDelete)
         self.deleteBtn.setStyleSheet('''
         QPushButton {
+        background-color: rgba(0,0,0,0);
         border: 0px ridge grey;
         text-align: center;
         height: 23px;
@@ -235,8 +240,7 @@ class MainWindow(QMainWindow):
         ''')
         self.mainMenu.setStyleSheet('''
         background-color: slategrey;
-        border: 3px ridge grey;
-        color: black;
+        border: 3px ridge grey
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
@@ -280,7 +284,7 @@ class MainWindow(QMainWindow):
         ''')
         self.mainMenu.setStyleSheet('''
         background-color: cornflowerblue;
-        border: 3px ridge grey;
+        border: 3px ridge cornflowerblue;
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
@@ -314,18 +318,19 @@ class MainWindow(QMainWindow):
                 font-style: bold;
                 ''')
 
-def mousePressEvent(self, event):
-    self.oldPos = event.globalPos()
+    def mousePressEvent(self, event):
+        self.oldPos = event.globalPos()
 
-def mouseMoveEvent(self, event):
-    delta = QPoint(event.globalPos() - self.oldPos)
-    self.move(self.x() + delta.x(), self.y() + delta.y())
-    self.oldPos = event.globalPos()
+    def mouseMoveEvent(self, event):
+        delta = QPoint (event.globalPos() - self.oldPos)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.oldPos = event.globalPos()
 
 def main():
     app = QApplication(sys.argv)
     win = MainWindow()
     win.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+    win.setWindowFlags(Qt.FramelessWindowHint)
     
     updateTimer = QtCore.QTimer()
     updateTimer.timeout.connect(win.UpdateTrackers)
