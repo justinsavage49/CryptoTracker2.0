@@ -14,13 +14,12 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setGeometry(200, 200, 400, 285)
         self.setFixedSize(400, 285)
-        self.setWindowTitle('Crypto Tracker')
         self.setStyleSheet('''
         background-color: #222223;
         border: 3px ridge grey;
         font-size: 14px;
         ''')
-        self.yPos = 25
+        self.yPos = 28
         self.oldPos = self.pos()
 
         #INIT DATA
@@ -34,7 +33,6 @@ class MainWindow(QMainWindow):
         self.currency = 'USD'
         self.currencyCheck = []
         self.dark = True
-
         self.mainMenu = self.menuBar()
         
         self.fileMenu = self.mainMenu.addAction('File')
@@ -52,7 +50,11 @@ class MainWindow(QMainWindow):
         self.themeMenu.addAction(self.themeLightAction)
         self.themeLightAction.triggered.connect(self.LightMode)
 
-        self.DarkMode()
+        if self.dark:
+            self.DarkMode()
+        else:
+            self.LightMode()
+
         #CURRENCY SELECTOR MENU
         self.currencyMenu = self.mainMenu.addMenu('&Currency')
 
@@ -159,7 +161,7 @@ class MainWindow(QMainWindow):
         if self.priceDelta > 0:
             deltaLabel1.setStyleSheet('''
             background-color: rgba(0,0,0,0);
-            border: 0px, solid, white;
+            border: 0px solid white;
             color: rgba(39, 222, 11, 1);
             font-size: 20px;
             font-style: bold;
@@ -167,7 +169,7 @@ class MainWindow(QMainWindow):
         else:
             deltaLabel1.setStyleSheet('''
             background-color: rgba(0,0,0,0);
-            border: 0px, solid, white;
+            border: 0px solid white;
             color: red;
             font-size: 20px;
             font-style: bold;
@@ -235,39 +237,40 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet('''
         background-color: #222223;
-        border: 3px ridge grey;
+        border: 3px ridge lightgrey;
         font-size: 14px;
         ''')
         self.mainMenu.setStyleSheet('''
         background-color: slategrey;
-        border: 3px ridge grey
+        border: 3px ridge grey;
         ''')
         if len(self.currentTrackers) > 0:
             for i in range(len(self.currentTrackers)):
                 self.currentTrackers[i][4].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
                 color: orange;
-                border: 0px, solid, white;
-                border: 3px ridge grey;''') 
+                border: 0px solid white;
+                border: 3px ridge grey;
+                ''') 
                 self.currentTrackers[i][5].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
-                border: 0px, solid, white;
+                border: 0px soli, white;
                 font-size: 16px;
                 ''')
                 self.currentTrackers[i][6].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
                 font-size: 30px;
-                border: 0px, solid, white;
+                border: 0px solid white;
                 ''')
                 self.currentTrackers[i][7].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
-                border: 0px, solid, white;
+                border: 0px solid white;
                 color: white;
                 font-size: 20px;
                 ''')
                 self.currentTrackers[i][8].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
-                border: 0px, solid, white;
+                border: 0px solid white;
                 color: lightgrey;
                 font-size: 20px;
                 font-style: bold;
@@ -290,29 +293,30 @@ class MainWindow(QMainWindow):
             for i in range(len(self.currentTrackers)):
                 self.currentTrackers[i][4].setStyleSheet('''
                 background-color: aliceblue;
-                border: 0px, solid, white;
-                border: 3px ridge cornflowerblue;''') 
+                border: 0px solid white;
+                border: 3px ridge cornflowerblue;
+                ''') 
                 self.currentTrackers[i][5].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
                 color: #222223;
-                border: 0px, solid, white;
+                border: 0px solid white;
                 font-size: 16px;
                 ''')
                 self.currentTrackers[i][6].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
                 color: #222223;
-                border: 0px, solid, white;
+                border: 0px solid white;
                 font-size: 30px;
                 ''')
                 self.currentTrackers[i][7].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
-                border: 0px, solid, white;
+                border: 0px solid white;
                 color: black;
                 font-size: 20px;
                 ''')
                 self.currentTrackers[i][8].setStyleSheet('''
                 background-color: rgba(0,0,0,0);
-                border: 0px, solid, white;
+                border: 0px solid white;
                 color: black;
                 font-size: 20px;
                 font-style: bold;
