@@ -333,7 +333,7 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     win = MainWindow()
-    win.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+    #win.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
     win.setWindowFlags(Qt.FramelessWindowHint)
     
     updateTimer = QtCore.QTimer()
