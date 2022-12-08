@@ -1,0 +1,2 @@
+pandas_datareader==0.10.0
+PyQt5==5.15.7
