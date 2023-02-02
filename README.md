@@ -7,7 +7,7 @@ Brought to you with PyQt5 and pandas_datareader. Track live crypto prices with a
 
 
 ## Features:
-- Keep track many crypto-currencies at once.
+- Keep track of many crypto-currencies at once.
 
 - View different currency conversions at the same time.
 
