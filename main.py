@@ -212,7 +212,7 @@ class MainWindow(QMainWindow):
             marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start, end=end)
             marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
         except: 
-            self.strPriceDelta = 'N/A'
+            self.strPriceDelta = '0'
             self.priceDelta = 0
             self.marketPrice = 'N/A'
         else:
