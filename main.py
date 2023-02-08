@@ -1,8 +1,4 @@
-from PyQt5.QtWidgets import (QMessageBox,QApplication, QWidget, QToolTip, QPushButton,
-                             QDesktopWidget, QMainWindow, QAction, qApp, QToolBar, QVBoxLayout,
-                             QComboBox,QLabel,QLineEdit,QGridLayout,QMenuBar,QMenu,QStatusBar,
-                             QTextEdit,QDialog,QFrame,QProgressBar)
-                             
+from PyQt5.QtWidgets import (QApplication, QPushButton, QMainWindow, QAction, qApp, QLabel)                          
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QPoint     
 import datetime as dt
@@ -346,7 +342,7 @@ def main():
     
     updateTimer = QtCore.QTimer()
     updateTimer.timeout.connect(win.UpdateTrackers)
-    updateTimer.setInterval(60000)
+    updateTimer.setInterval(20000)
     updateTimer.start()
     win.show()
     sys.exit(app.exec_())
