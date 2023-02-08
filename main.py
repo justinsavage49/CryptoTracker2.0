@@ -205,16 +205,24 @@ class MainWindow(QMainWindow):
             self.yPos -= 65
             
     def MarketInfo(self, crypto, currency=None):
-        t1 = dt.datetime.utcnow() - dt.timedelta(hours=24)
+        t1 = dt.datetime.utcnow() - dt.timedelta(hours=48)
         start = t1.date()
         end = dt.datetime.utcnow()
-        marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start, end=end)
-        marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
-        priceDelta = (marketNow / marketOpen - 1) * 100
-        self.marketPrice = round(marketNow, 2)
-        self.marketPrice = '{:,.2f}'.format(self.marketPrice)
-        self.priceDelta = round(priceDelta, 2)
-        self.strPriceDelta = str(format(round(priceDelta, 2), '.2f'))
+        try:
+            marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start, end=end)
+            marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
+        except: 
+            self.strPriceDelta = 'N/A'
+            self.priceDelta = 0
+            self.marketPrice = 'N/A'
+        else:
+            marketInfo = web.DataReader(crypto + '-' + currency, 'yahoo', start=start, end=end)   
+            marketOpen, marketNow = marketInfo['Open'][1], marketInfo['Adj Close'][1]
+            priceDelta = (marketNow / marketOpen - 1) * 100
+            self.marketPrice = round(marketNow, 2)
+            self.marketPrice = '{:,.2f}'.format(self.marketPrice)
+            self.priceDelta = round(priceDelta, 2)
+            self.strPriceDelta = str(format(round(priceDelta, 2), '.2f'))
 
     def UpdateTrackers(self):
         if len(self.currentTrackers) > 0:
